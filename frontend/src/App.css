@@ -472,18 +472,35 @@ body {
 
 .overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,.82);
+  background: rgba(0,0,0,.72);
   display: flex; align-items: center; justify-content: center;
   z-index: 99999;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
+  animation: overlayIn .15s ease;
 }
 
 .modal {
-  background: #303030; border: 2px solid var(--gold);
+  background: #2a2a2a;
+  border: 2px solid var(--gold);
   border-radius: 20px; padding: 36px; width: 100%; max-width: 540px;
   max-height: 90vh; overflow-y: auto;
-  box-shadow: 0 0 0 1px rgba(201,160,85,.15), 0 32px 80px rgba(0,0,0,.95), 0 0 60px rgba(0,0,0,.6);
+  box-shadow:
+    0 0 0 4px rgba(201,160,85,.15),
+    0 0 30px rgba(201,160,85,.4),
+    0 0 80px rgba(201,160,85,.2),
+    0 40px 90px rgba(0,0,0,.8);
   position: relative; z-index: 100000;
+  animation: modalIn .2s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(16px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .modal-title {
