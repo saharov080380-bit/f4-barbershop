@@ -1,0 +1,9 @@
+version: "3.9"
+
+# Локальный тест production-сборки на порту 8090
+# Запуск: docker compose -f docker-compose.prod.yml -f docker-compose.local.yml up --build
+
+services:
+  nginx:
+    ports:
+      - "8090:80"

@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { createPortal } from "react-dom";
+import { createPortal } from "react-dom";  // нужен чтобы рендерить модалку поверх всего
 import "./App.css";
 
+// базовый путь к бэкенду — nginx проксирует /api/ на Django
 const API = "/api";
 
+// список услуг с ценами и длительностью — используется в модалке записи и карточках
 const SERVICES = [
   { id: "Стрижка",          icon: "✂️",  price: 800,  duration: "45 мин" },
   { id: "Оформление бороды", icon: "🧔",  price: 500,  duration: "30 мин" },
@@ -13,9 +15,11 @@ const SERVICES = [
   { id: "Укладка",          icon: "💆",  price: 400,  duration: "20 мин" },
 ];
 
+// временные слоты — барбершоп работает с 9 до 19, каждый час
 const TIME_SLOTS = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 
 // Специализации мастеров — присваиваются по остатку от деления на длину списка
+// специализации мастеров — назначаются по порядковому номеру стола
 const SPECS = [
   ["Классические стрижки", "Оформление бороды"],
   ["Фейды и скины",        "Стайлинг и укладка"],
@@ -25,10 +29,12 @@ const SPECS = [
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+// хелперы для работы с localStorage — токен и данные пользователя живут там после входа
 const getToken    = () => localStorage.getItem("token");
 const getUsername = () => localStorage.getItem("username");
 const getRole     = () => localStorage.getItem("role");
 
+// универсальная функция для запросов к API — сама подставляет токен в заголовок
 async function apiFetch(path, options = {}) {
   const headers = { "Content-Type": "application/json", ...options.headers };
   const token = getToken();
@@ -41,6 +47,7 @@ async function apiFetch(path, options = {}) {
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
+// склонение числительных по-русски: 1 мастер, 2 мастера, 5 мастеров
 function plur(n, one, few, many) {
   const m10 = n % 10, m100 = n % 100;
   if (m100 >= 11 && m100 <= 19) return `${n} ${many}`;
@@ -75,6 +82,7 @@ function statusLabel(s) {
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 
+// хук для всплывающих уведомлений — автоматически скрываются через 3.2 секунды
 function useToast() {
   const [list, setList] = useState([]);
   const add = useCallback((msg, type = "ok") => {
@@ -462,6 +470,8 @@ function Dashboard({ onLogout }) {
   const username = getUsername();
   const open     = isShopOpen();
 
+  // загружаем записи и мастеров параллельно — используем allSettled чтобы
+  // ошибка в одном запросе не ломала другой
   const load = useCallback(async () => {
     const [bResult, sResult] = await Promise.allSettled([
       apiFetch("/bookings"),
