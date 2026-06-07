@@ -6,21 +6,21 @@ const API = "/api";
 
 const SERVICES = [
   { id: "Стрижка",          icon: "✂️",  price: 800,  duration: "45 мин" },
-  { id: "Борода",           icon: "🪒",  price: 500,  duration: "30 мин" },
+  { id: "Оформление бороды", icon: "🧔",  price: 500,  duration: "30 мин" },
   { id: "Стрижка + борода", icon: "💈",  price: 1200, duration: "75 мин" },
-  { id: "Бритьё",           icon: "🔪",  price: 600,  duration: "40 мин" },
-  { id: "Камуфляж",         icon: "🎨",  price: 700,  duration: "50 мин" },
-  { id: "Укладка",          icon: "💇",  price: 400,  duration: "20 мин" },
+  { id: "Бритьё",           icon: "🪒",  price: 600,  duration: "40 мин" },
+  { id: "Тонирование",      icon: "🎨",  price: 700,  duration: "50 мин" },
+  { id: "Укладка",          icon: "💆",  price: 400,  duration: "20 мин" },
 ];
 
 const TIME_SLOTS = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 
 // Специализации мастеров — присваиваются по остатку от деления на длину списка
 const SPECS = [
-  ["Классические стрижки", "Работа с бородой"],
-  ["Фейды и скины",        "Укладка воска"],
-  ["Камуфляж седины",      "Опасная бритва"],
-  ["Детские стрижки",      "Барбер-коктейль"],
+  ["Классические стрижки", "Оформление бороды"],
+  ["Фейды и скины",        "Стайлинг и укладка"],
+  ["Тонирование волос",    "Горячее бритьё"],
+  ["Детские стрижки",      "Контурная окантовка"],
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -40,6 +40,14 @@ async function apiFetch(path, options = {}) {
 }
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
+
+function plur(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  if (m100 >= 11 && m100 <= 19) return `${n} ${many}`;
+  if (m10 === 1) return `${n} ${one}`;
+  if (m10 >= 2 && m10 <= 4) return `${n} ${few}`;
+  return `${n} ${many}`;
+}
 
 function fmt(d) {
   if (!d) return "";
@@ -134,7 +142,7 @@ function AuthPage({ onLogin }) {
           </div>
           <div className="auth-features">
             <div className="auth-feature"><span className="auth-feature-dot" />Онлайн-запись 24/7</div>
-            <div className="auth-feature"><span className="auth-feature-dot" />3 опытных мастера</div>
+            <div className="auth-feature"><span className="auth-feature-dot" />4 опытных мастера</div>
             <div className="auth-feature"><span className="auth-feature-dot" />Работаем с 09:00 до 19:00</div>
           </div>
         </div>
@@ -363,7 +371,7 @@ function MastersPage({ stations }) {
       <div className="topbar">
         <div>
           <div className="topbar-title">Наши мастера</div>
-          <div className="topbar-sub">{stations.length} специалиста</div>
+          <div className="topbar-sub">{plur(stations.length, "специалист", "специалиста", "специалистов")}</div>
         </div>
       </div>
       <div className="masters-grid">
