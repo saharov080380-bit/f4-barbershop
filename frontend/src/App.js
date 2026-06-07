@@ -455,11 +455,13 @@ function Dashboard({ onLogout }) {
   const open     = isShopOpen();
 
   const load = useCallback(async () => {
-    try {
-      const [b, s] = await Promise.all([apiFetch("/bookings"), apiFetch("/stations")]);
-      setBookings(b); setStations(s);
-    } catch (err) { toast(err.message, "err"); }
-    finally { setLoading(false); }
+    const [bResult, sResult] = await Promise.allSettled([
+      apiFetch("/bookings"),
+      apiFetch("/stations"),
+    ]);
+    if (sResult.status === "fulfilled") setStations(sResult.value);
+    if (bResult.status === "fulfilled") setBookings(bResult.value);
+    setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
