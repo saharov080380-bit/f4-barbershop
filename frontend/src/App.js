@@ -492,8 +492,9 @@ function Dashboard({ onLogout }) {
   }
 
   async function logout() {
-    try { await apiFetch("/logout", { method: "POST" }); } catch (_) {}
-    localStorage.clear(); onLogout();
+    // просто чистим локальное хранилище — токен на сервере истечёт сам
+    localStorage.clear();
+    onLogout();
   }
 
   const upcoming = bookings.filter(b => bookingStatus(b.date) !== "past");

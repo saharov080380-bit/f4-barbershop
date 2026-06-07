@@ -56,16 +56,6 @@ def login(request, data: LoginIn):
     return {"token": token, "role": user.role}
 
 
-@api.post("/logout", auth=auth, response=MessageOut, tags=["auth"])
-def logout(request):
-    # удаляем токен текущего пользователя из хранилища
-    for token, uid in list(TOKEN_STORE.items()):
-        if uid == request.auth.id:
-            del TOKEN_STORE[token]
-            break
-    return {"message": "Выход выполнен"}
-
-
 # ── Столы (рабочие места мастеров) ────────────────────────────────────────────
 
 # список столов доступен без авторизации — чтобы гость мог увидеть мастеров
