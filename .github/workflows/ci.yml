@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  # ─── Тесты бэкенда ───────────────────────────────────────────────────────────
+  #  Тесты бэкенда 
   backend-test:
     runs-on: ubuntu-latest
     services:
@@ -50,7 +50,7 @@ jobs:
           python manage.py migrate
           python manage.py test --verbosity=2
 
-  # ─── Тесты фронтенда ─────────────────────────────────────────────────────────
+  #  Тесты фронтенда 
   frontend-test:
     runs-on: ubuntu-latest
     steps:
@@ -66,7 +66,7 @@ jobs:
       - name: Run tests
         run: npm test --prefix frontend -- --watchAll=false --passWithNoTests
 
-  # ─── Сборка Docker-образов ───────────────────────────────────────────────────
+  #  Сборка Docker-образов 
   docker-build:
     runs-on: ubuntu-latest
     needs: [backend-test, frontend-test]
@@ -79,7 +79,7 @@ jobs:
       - name: Build frontend image
         run: docker build -t barbershop-frontend ./frontend
 
-  # ─── Деплой на сервер (только при пуше в main) ───────────────────────────────
+  #  деплой на сервер (только при пуше в main) 
   deploy:
     runs-on: ubuntu-latest
     needs: docker-build
@@ -93,7 +93,6 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          # сборка фронтенда на сервере долгая — поднимаем лимит с 10 до 30 минут
           command_timeout: 30m
           script: |
             cd /opt/barbershop

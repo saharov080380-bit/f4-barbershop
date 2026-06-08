@@ -80,7 +80,6 @@ function statusLabel(s) {
   return "Прошло";
 }
 
-// ─── Toast ────────────────────────────────────────────────────────────────────
 
 // хук для всплывающих уведомлений — автоматически скрываются через 3.2 секунды
 function useToast() {
@@ -106,7 +105,7 @@ function Toasts({ list }) {
   );
 }
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
+//  Auth 
 
 function AuthPage({ onLogin }) {
   const [mode, setMode]         = useState("login");
@@ -195,7 +194,7 @@ function AuthPage({ onLogin }) {
   );
 }
 
-// ─── Booking Modal ────────────────────────────────────────────────────────────
+//  Booking Modal 
 
 function BookingModal({ stations, allBookings, onClose, onDone, toast }) {
   const [stationId, setStationId] = useState(stations[0]?.id ?? "");
@@ -311,7 +310,7 @@ function BookingModal({ stations, allBookings, onClose, onDone, toast }) {
   );
 }
 
-// ─── Bookings Page ────────────────────────────────────────────────────────────
+//  Bookings Page 
 
 function BookingsPage({ bookings, stations, allBookings, onDelete, onRefresh, toast }) {
   const [showModal, setShowModal] = useState(false);
@@ -322,7 +321,7 @@ function BookingsPage({ bookings, stations, allBookings, onDelete, onRefresh, to
   const byDateTime = (a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
 
   const upcoming = bookings.filter(b => bookingStatus(b.date) !== "past").sort(byDateTime);
-  // прошедшие — наоборот, свежие сверху
+  // прошедшие наоборот, свежие сверху
   const past     = bookings.filter(b => bookingStatus(b.date) === "past").sort((a, b) => -byDateTime(a, b));
 
   function CardList({ list }) {
@@ -406,7 +405,7 @@ function BookingsPage({ bookings, stations, allBookings, onDelete, onRefresh, to
   );
 }
 
-// ─── Masters Page ─────────────────────────────────────────────────────────────
+//  Masters Page 
 
 function MastersPage({ stations }) {
   return (
@@ -436,7 +435,7 @@ function MastersPage({ stations }) {
   );
 }
 
-// ─── Admin Stations Page ──────────────────────────────────────────────────────
+//  Admin Stations Page 
 
 function StationsPage({ stations, onRefresh, toast }) {
   const [num,     setNum]     = useState("");
@@ -492,7 +491,7 @@ function StationsPage({ stations, onRefresh, toast }) {
   );
 }
 
-// ─── Dashboard ────────────────────────────────────────────────────────────────
+//  Dashboard 
 
 function Dashboard({ onLogout }) {
   const [tab,      setTab]      = useState("bookings");
@@ -630,7 +629,7 @@ function Dashboard({ onLogout }) {
   );
 }
 
-// ─── Root ─────────────────────────────────────────────────────────────────────
+//  Root 
 
 export default function App() {
   const [in_, setIn] = useState(!!getToken());

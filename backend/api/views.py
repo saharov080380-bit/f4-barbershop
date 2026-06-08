@@ -10,12 +10,10 @@ from .schemas import (
     RegisterIn, StationIn, StationOut, TokenOut, UserOut,
 )
 
-# токены храним в памяти — при перезапуске сервера пользователи разлогинятся,
-# для учебного проекта это нормально, в продакшене лучше использовать Redis
-TOKEN_STORE: dict[str, int] = {}  # токен -> id пользователя
+TOKEN_STORE: dict[str, int] = {} 
 
 
-# класс для проверки токена в заголовке Authorization: Bearer <token>
+# класс для проверки токена в заголовке
 class AuthBearer(HttpBearer):
     def authenticate(self, request, token: str):
         user_id = TOKEN_STORE.get(token)
@@ -24,15 +22,14 @@ class AuthBearer(HttpBearer):
                 return User.objects.get(id=user_id)
             except User.DoesNotExist:
                 pass
-        return None  # если токен не найден — вернём 401
+        return None  # если не найден то 401
 
 
-# создаём экземпляр API — документация будет доступна по /api/docs
 api  = NinjaAPI(title="F4 Barbershop API", version="1.0")
 auth = AuthBearer()
 
 
-# ── Авторизация ────────────────────────────────────────────────────────────────
+#  авторизация 
 
 @api.post("/register", response=MessageOut, tags=["auth"])
 def register(request, data: RegisterIn):
@@ -45,20 +42,19 @@ def register(request, data: RegisterIn):
 
 @api.post("/login", response=TokenOut, tags=["auth"])
 def login(request, data: LoginIn):
-    # authenticate проверяет логин и пароль через Django
     user = authenticate(username=data.username, password=data.password)
     if not user:
         return api.create_response(request, {"message": "Неверные данные"}, status=401)
 
-    # генерируем случайный токен и сохраняем в словаре
+    #  случайный токен в словарь
     token = secrets.token_hex(32)
     TOKEN_STORE[token] = user.id
     return {"token": token, "role": user.role}
 
 
-# ── Столы (рабочие места мастеров) ────────────────────────────────────────────
+# Столы
 
-# список столов доступен без авторизации — чтобы гость мог увидеть мастеров
+# список столов доступен без авторизации 
 @api.get("/stations", response=list[StationOut], tags=["stations"])
 def list_stations(request):
     return list(Station.objects.all())
@@ -83,22 +79,22 @@ def delete_station(request, station_id: int):
     return {"message": "Стол удалён"}
 
 
-# ── Пользователи ───────────────────────────────────────────────────────────────
+#  пользователи 
 
-# список клиентов — нужен админу, чтобы выбрать кого записать. Только для админа
+# список клиентов нужен админу, чтобы выбрать кого записать
 @api.get("/users", auth=auth, response=list[UserOut], tags=["users"])
 def list_users(request):
     if not request.auth.is_admin():
         return api.create_response(request, {"message": "Доступ запрещён"}, status=403)
-    # отдаём только обычных клиентов (без администраторов)
+    # отдаём только обычных клиентов
     return list(User.objects.filter(role=User.ROLE_USER).order_by("username"))
 
 
-# ── Записи клиентов ────────────────────────────────────────────────────────────
+#  записи клиентов 
 
 @api.get("/bookings", auth=auth, response=list[BookingOut], tags=["bookings"])
 def list_bookings(request):
-    # администратор видит все записи, обычный клиент — только свои
+    # админ видит все записи, а обычный только свои
     if request.auth.is_admin():
         bookings = Booking.objects.select_related("user", "station").all()
     else:
@@ -122,13 +118,13 @@ def list_bookings(request):
 def create_booking(request, data: BookingIn):
     station = get_object_or_404(Station, id=data.station_id)
 
-    # по умолчанию записываем самого пользователя на себя
+    # записываем самого на себя
     target_user = request.auth
-    # но админ может записать любого клиента, передав его username
+    # но админ может записать любого клиента
     if data.username and request.auth.is_admin():
         target_user = get_object_or_404(User, username=data.username)
 
-    # проверяем что выбранное время у этого мастера ещё не занято
+    # проверка времени
     if Booking.objects.filter(station=station, date=data.date, time=data.time).exists():
         return api.create_response(request, {"message": "Это время уже занято"}, status=400)
 
@@ -154,7 +150,7 @@ def create_booking(request, data: BookingIn):
 def delete_booking(request, booking_id: int):
     booking = get_object_or_404(Booking, id=booking_id)
 
-    # клиент может отменить только свою запись, админ — любую
+    # клиент отменяет свою а админ любую
     if not request.auth.is_admin() and booking.user != request.auth:
         return api.create_response(request, {"message": "Доступ запрещён"}, status=403)
 

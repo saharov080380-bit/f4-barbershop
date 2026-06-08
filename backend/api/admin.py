@@ -3,8 +3,6 @@ from django.contrib.auth.admin import UserAdmin
 from .models import User, Station, Booking
 
 
-# Пользователи — берём стандартную админку Django и добавляем поле role,
-# чтобы прямо из админки можно было назначить кого-то администратором
 class CustomUserAdmin(UserAdmin):
     list_display = ("username", "email", "role", "is_staff")
     list_filter  = ("role", "is_staff", "is_superuser")
@@ -14,13 +12,13 @@ class CustomUserAdmin(UserAdmin):
     )
 
 
-# Столы (рабочие места мастеров)
+# рабочие места мастеров
 class StationAdmin(admin.ModelAdmin):
     list_display = ("number", "name")
     ordering = ("number",)
 
 
-# Записи клиентов
+# записи клиентов
 class BookingAdmin(admin.ModelAdmin):
     list_display = ("user", "station", "date", "time", "service")
     list_filter  = ("date", "station", "service")

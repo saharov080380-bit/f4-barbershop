@@ -1,7 +1,6 @@
-#!/bin/sh
 set -e
 
-# применяем миграции перед запуском
+#  миграции перед запуском
 python manage.py makemigrations api
 python manage.py migrate
 
@@ -12,7 +11,7 @@ from api.models import User, Station, Booking
 
 today = date.today()
 
-# ── Мастера (рабочие столы) ────────────────────────────────────────────────────
+# Мастера
 if not Station.objects.exists():
     Station.objects.create(number=1, name='Артём Волков')
     Station.objects.create(number=2, name='Дмитрий Соколов')
@@ -25,14 +24,14 @@ s2 = Station.objects.get(number=2)
 s3 = Station.objects.get(number=3)
 s4 = Station.objects.get(number=4)
 
-# ── Администратор ──────────────────────────────────────────────────────────────
+#  Администратор 
 if not User.objects.filter(username='admin').exists():
     u = User.objects.create_superuser('admin', 'admin@f4.ru', 'admin123')
     u.role = 'admin'
     u.save()
     print("Администратор создан")
 
-# ── Клиенты ────────────────────────────────────────────────────────────────────
+#  Клиенты 
 clients = [
     ('nikita',   'nikita123',   'nikita@mail.ru'),
     ('roman',    'roman123',    'roman@mail.ru'),
@@ -53,7 +52,7 @@ mikhail = User.objects.get(username='mikhail')
 sergey  = User.objects.get(username='sergey')
 andrey  = User.objects.get(username='andrey')
 
-# ── Записи ─────────────────────────────────────────────────────────────────────
+#  Записи 
 # формат: (клиент, стол, дата, время, услуга)
 bookings_data = [
     # две недели назад
@@ -110,6 +109,4 @@ print(f"Записей в базе: {Booking.objects.count()}")
 print("База данных заполнена!")
 EOF
 
-# --insecure заставляет runserver отдавать статику даже при DEBUG=False,
-# иначе у админки не подгрузятся стили
 python manage.py runserver 0.0.0.0:8000 --insecure
