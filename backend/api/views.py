@@ -7,7 +7,7 @@ from ninja.security import HttpBearer
 from .models import Booking, Station, User
 from .schemas import (
     BookingIn, BookingOut, LoginIn, MessageOut,
-    RegisterIn, StationIn, StationOut, TokenOut,
+    RegisterIn, StationIn, StationOut, TokenOut, UserOut,
 )
 
 # токены храним в памяти — при перезапуске сервера пользователи разлогинятся,
@@ -83,6 +83,17 @@ def delete_station(request, station_id: int):
     return {"message": "Стол удалён"}
 
 
+# ── Пользователи ───────────────────────────────────────────────────────────────
+
+# список клиентов — нужен админу, чтобы выбрать кого записать. Только для админа
+@api.get("/users", auth=auth, response=list[UserOut], tags=["users"])
+def list_users(request):
+    if not request.auth.is_admin():
+        return api.create_response(request, {"message": "Доступ запрещён"}, status=403)
+    # отдаём только обычных клиентов (без администраторов)
+    return list(User.objects.filter(role=User.ROLE_USER).order_by("username"))
+
+
 # ── Записи клиентов ────────────────────────────────────────────────────────────
 
 @api.get("/bookings", auth=auth, response=list[BookingOut], tags=["bookings"])
@@ -111,12 +122,18 @@ def list_bookings(request):
 def create_booking(request, data: BookingIn):
     station = get_object_or_404(Station, id=data.station_id)
 
+    # по умолчанию записываем самого пользователя на себя
+    target_user = request.auth
+    # но админ может записать любого клиента, передав его username
+    if data.username and request.auth.is_admin():
+        target_user = get_object_or_404(User, username=data.username)
+
     # проверяем что выбранное время у этого мастера ещё не занято
     if Booking.objects.filter(station=station, date=data.date, time=data.time).exists():
         return api.create_response(request, {"message": "Это время уже занято"}, status=400)
 
     booking = Booking.objects.create(
-        user=request.auth,
+        user=target_user,
         station=station,
         date=data.date,
         time=data.time,
@@ -129,7 +146,7 @@ def create_booking(request, data: BookingIn):
         date=booking.date,
         time=booking.time,
         service=booking.service,
-        username=request.auth.username,
+        username=target_user.username,
     )
 
 

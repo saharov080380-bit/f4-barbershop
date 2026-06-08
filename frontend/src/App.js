@@ -197,6 +197,16 @@ function BookingModal({ stations, allBookings, onClose, onDone, toast }) {
   const [service,   setService]   = useState(SERVICES[0].id);
   const [loading,   setLoading]   = useState(false);
 
+  // админ может записать не себя, а выбранного клиента
+  const isAdmin = getRole() === "admin";
+  const [clients, setClients] = useState([]);
+  const [client,  setClient]  = useState("");   // username клиента, пусто = записать себя
+
+  // подгружаем список клиентов только для админа
+  useEffect(() => {
+    if (isAdmin) apiFetch("/users").then(setClients).catch(() => {});
+  }, [isAdmin]);
+
   const taken = allBookings
     .filter(b => String(b.station_id) === String(stationId) && b.date === date)
     .map(b => b.time.slice(0, 5));
@@ -205,9 +215,12 @@ function BookingModal({ stations, allBookings, onClose, onDone, toast }) {
     if (!time) { toast("Выберите время", "err"); return; }
     setLoading(true);
     try {
+      const payload = { station_id: Number(stationId), date, time, service };
+      // если админ выбрал клиента — записываем его, иначе себя
+      if (isAdmin && client) payload.username = client;
       await apiFetch("/bookings", {
         method: "POST",
-        body: JSON.stringify({ station_id: Number(stationId), date, time, service }),
+        body: JSON.stringify(payload),
       });
       toast("Запись создана!");
       onDone(); onClose();
@@ -224,6 +237,16 @@ function BookingModal({ stations, allBookings, onClose, onDone, toast }) {
     <div className="overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-title">Новая запись</div>
+
+        {isAdmin && (
+          <div className="fld" style={{ marginBottom: 16 }}>
+            <label>Клиент</label>
+            <select value={client} onChange={e => setClient(e.target.value)}>
+              <option value="">Записать себя (admin)</option>
+              {clients.map(c => <option key={c.id} value={c.username}>{c.username}</option>)}
+            </select>
+          </div>
+        )}
 
         <div className="form-row">
           <div className="fld">
