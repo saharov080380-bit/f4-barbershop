@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import "./App.css";
 
 const API = "/api";
@@ -203,7 +204,7 @@ function BookingModal({ stations, allBookings, onClose, onDone, toast }) {
 
   const svcObj = SERVICES.find(s => s.id === service);
 
-  return (
+  return createPortal(
     <div className="overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-title">Новая запись</div>
@@ -259,7 +260,8 @@ function BookingModal({ stations, allBookings, onClose, onDone, toast }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
