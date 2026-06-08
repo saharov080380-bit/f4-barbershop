@@ -95,6 +95,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             cd /opt/barbershop
-            git pull origin main
-            docker compose -f docker-compose.prod.yml up -d --build
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose -f docker-compose.prod.yml up -d --build --force-recreate
             docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate
