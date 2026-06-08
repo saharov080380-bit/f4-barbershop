@@ -472,15 +472,16 @@ body {
 
 .overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,.75);
+  background: rgba(0,0,0,.6);
   display: flex; align-items: center; justify-content: center;
-  z-index: 100; backdrop-filter: blur(6px);
+  z-index: 100;
 }
 
 .modal {
-  background: var(--bg2); border: 1px solid var(--border2);
+  background: #1e1e1e; border: 1px solid #3a3a3a;
   border-radius: 20px; padding: 36px; width: 100%; max-width: 540px;
   max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0,0,0,.8);
 }
 
 .modal-title {
