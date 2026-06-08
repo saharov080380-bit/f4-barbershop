@@ -111,6 +111,7 @@ function Toasts({ list }) {
 function AuthPage({ onLogin }) {
   const [mode, setMode]         = useState("login");
   const [username, setUsername] = useState("");
+  const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
   const [success, setSuccess]   = useState("");
@@ -121,7 +122,7 @@ function AuthPage({ onLogin }) {
     setError(""); setSuccess(""); setLoading(true);
     try {
       if (mode === "register") {
-        await apiFetch("/register", { method: "POST", body: JSON.stringify({ username, password }) });
+        await apiFetch("/register", { method: "POST", body: JSON.stringify({ username, email, password }) });
         setSuccess("Аккаунт создан — войдите!");
         setMode("login"); setPassword("");
       } else {
@@ -174,6 +175,12 @@ function AuthPage({ onLogin }) {
               <label>Логин</label>
               <input value={username} onChange={e => setUsername(e.target.value)} placeholder="your_name" required />
             </div>
+            {mode === "register" && (
+              <div className="field">
+                <label>Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@mail.ru" required />
+              </div>
+            )}
             <div className="field">
               <label>Пароль</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
