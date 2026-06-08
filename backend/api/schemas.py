@@ -36,9 +36,10 @@ class StationIn(Schema):
     name:   str
 
 
-#  записи 
+#  записи
 
-# полные данные о бронировании 
+# полные данные о бронировании
+class BookingOut(Schema):
     id:             int
     station_id:     int
     station_number: int
