@@ -110,4 +110,6 @@ print(f"Записей в базе: {Booking.objects.count()}")
 print("База данных заполнена!")
 EOF
 
-python manage.py runserver 0.0.0.0:8000
+# --insecure заставляет runserver отдавать статику даже при DEBUG=False,
+# иначе у админки не подгрузятся стили
+python manage.py runserver 0.0.0.0:8000 --insecure
