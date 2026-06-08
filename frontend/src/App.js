@@ -310,8 +310,13 @@ function BookingsPage({ bookings, stations, allBookings, onDelete, onRefresh, to
   const [showModal, setShowModal] = useState(false);
   const isAdmin = getRole() === "admin";
 
-  const upcoming = bookings.filter(b => bookingStatus(b.date) !== "past");
-  const past     = bookings.filter(b => bookingStatus(b.date) === "past");
+  // сортировка по дате и времени: сегодняшняя дата меньше будущих,
+  // поэтому по возрастанию записи на сегодня идут первыми, затем следующие дни
+  const byDateTime = (a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
+
+  const upcoming = bookings.filter(b => bookingStatus(b.date) !== "past").sort(byDateTime);
+  // прошедшие — наоборот, свежие сверху
+  const past     = bookings.filter(b => bookingStatus(b.date) === "past").sort((a, b) => -byDateTime(a, b));
 
   function CardList({ list }) {
     if (!list.length) return null;
