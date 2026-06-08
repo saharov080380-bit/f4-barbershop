@@ -472,16 +472,17 @@ body {
 
 .overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,.6);
+  background: rgba(0,0,0,.55);
   display: flex; align-items: center; justify-content: center;
-  z-index: 100;
+  z-index: 9999;
 }
 
 .modal {
-  background: #1e1e1e; border: 1px solid #3a3a3a;
+  background: #2c2c2c; border: 2px solid var(--gold);
   border-radius: 20px; padding: 36px; width: 100%; max-width: 540px;
   max-height: 90vh; overflow-y: auto;
-  box-shadow: 0 24px 60px rgba(0,0,0,.8);
+  box-shadow: 0 0 0 1px #111, 0 24px 60px rgba(0,0,0,.9);
+  position: relative; z-index: 10000;
 }
 
 .modal-title {
